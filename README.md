@@ -58,6 +58,12 @@ The `-c "**.cgi"` argument specifies a wildcard pattern for for CGI files,
 in this case telling thttpd to treat all files that end in '.cgi' as CGI files.
 
 
+### Coding tips
+
+There are lots of coding resources on the web. For HTML I like to use
+http://www.htmlbyexample.com/. 
+
+
 ### GAME NOTES
 
 Changes and improvements are welcome! I'm too busy to spend as much time as I
@@ -69,7 +75,7 @@ I might have tried to do that so that the game just runs on a browser, without
 the need for a server. However, one advantage to a server-based approach is
 that this game could eventually be written such that two players can play each
 other from their own screens in their own locations, and the server keeps the
-game in sync. It's not there yet, but that's the current goal.
+game in sync. It's not there yet, but that's the current long-term goal.
 
 The first iteration, powerup_v1.cgi, was limited to cube placement, to focus
 on this aspect of the game. After playing the first iteration a few times I
