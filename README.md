@@ -1,6 +1,5 @@
 
-
-                    FIRST PowerUP! Strategy Game
+# FIRST PowerUP! Strategy Game
 
 
 This is a simple web-based game based on the FIRST Robotics Challenge
@@ -19,47 +18,47 @@ submits their selections, they are passed as arguments to the CGI file, which
 then produces an updated web page with a new game state.
 
 
-  FILE DESCRIPTION
+### FILE DESCRIPTION
 
 Here is a description of the files for this game. The game has been evolving
 as I continue to develop it, so there are a couple of iterations:
 
-cube.png        : image of a single power cube
-field.png       : image of a PowerUp! field, taken from the game manual
-template.html   : the original html layout for the game	
-powerup_v1.cgi  : the first iteration/prototype of the game
-powerup_v2.cgi  : the second iteration/prototype of the game
-alliance.cgi    : the third iteration/prototype of the game
+- cube.png        : image of a single power cube
+- field.png       : image of a PowerUp! field, taken from the game manual
+- template.html   : the original html layout for the game	
+- powerup_v1.cgi  : the first iteration/prototype of the game
+- powerup_v2.cgi  : the second iteration/prototype of the game
+- alliance.cgi    : the third iteration/prototype of the game
 
 
-  WEB SERVERS
+### WEB SERVERS
 
 Apache (https://httpd.apache.org/) is the most common HTTP server for Linux,
 but can be a little intimidating to setup and configure for first-time users.
 I recommend and use thttpd (https://acme.com/software/thttpd/) for its ease-
 of-use. Simply download and unpack the thttpd tar file, and build it:
 
-  # tar zxf thttpd-2.27.tar.gz
-  # cd thttpd-2.27
-  # ./configure
-  # make
+	# tar zxf thttpd-2.27.tar.gz
+	# cd thttpd-2.27
+	# ./configure
+	# make
 
 Run 'make install' or copy the thttpd binary to a location. I launch it with
 a simple script that I create:
 
-root@MrRobot:/usr/local/sbin/www# cat ../startweb
-#!/bin/bash
+  root@MrRobot:/usr/local/sbin/www# cat ../startweb
+  #!/bin/bash
 
-/usr/local/sbin/thttpd -d /usr/local/sbin/www -c "**.cgi"
-root@MrRobot:/usr/local/sbin/www#
+  /usr/local/sbin/thttpd -d /usr/local/sbin/www -c "**.cgi"
+  root@MrRobot:/usr/local/sbin/www#
 
-The two arguments are pretty intuitive. The '-d /usr/local/sbin/www' tells
+The two arguments are pretty intuitive. The `-d /usr/local/sbin/www` tells
 thttpd to serve web pages located in the given directory, /usr/local/sbin/www/.
-The '-c "**.cgi"' argument specifies a wildcard pattern for for CGI files,
+The `-c "**.cgi"` argument specifies a wildcard pattern for for CGI files,
 in this case telling thttpd to treat all files that end in '.cgi' as CGI files.
 
 
-  GAME NOTES
+### GAME NOTES
 
 Changes and improvements are welcome! I'm too busy to spend as much time as I
 would like on this, so please feel free to run with your own ideas on this.
