@@ -44,13 +44,13 @@ of-use. Simply download and unpack the thttpd tar file, and build it:
 	# make
 
 Run 'make install' or copy the thttpd binary to a location. I launch it with
-a simple script that I create:
+a simple script that I create.
 
-  root@MrRobot:/usr/local/sbin/www# cat ../startweb
-  #!/bin/bash
+	# cat ../startweb
+	#!/bin/bash
 
-  /usr/local/sbin/thttpd -d /usr/local/sbin/www -c "**.cgi"
-  root@MrRobot:/usr/local/sbin/www#
+	/usr/local/sbin/thttpd -d /usr/local/sbin/www -c "**.cgi"
+	
 
 The two arguments are pretty intuitive. The `-d /usr/local/sbin/www` tells
 thttpd to serve web pages located in the given directory, /usr/local/sbin/www/.
