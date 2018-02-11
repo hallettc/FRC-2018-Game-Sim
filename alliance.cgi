@@ -414,15 +414,93 @@ sub scoreBlueRobot($) {
     }
 }
 
+# check if cubes were taken from an empty location
+sub emptycheck() {
+	# check RED
+	if ($pyramidL < 0) {
+		# cannot take from empty pyramid so take from switch or portal
+		$pyramidL = 0;
+		# try taking from switch
+		if ($switchL > 0) {
+			$switchL--;
+		} else {
+			# portal is all that's left
+			$REDportal--;
+		}
+	}
+	if ($switchL < 0) {
+		# cannot take from from switch so take from pyramid or portal
+		$switchL = 0;
+		# try taking from pyramid
+		if ($pyramidL > 0) {
+			$pyramidL--;
+		} else {
+			# portal is all that's left
+			$REDportal--;
+		}
+	}
+	if ($REDportal < 0) {
+		# cannot take from from portal so take from pyramid or switch
+		$REDportal = 0;
+		# try taking from pyramid
+		if ($pyramidL > 0) {
+			$pyramidL--;
+		} else {
+			# switch is all that's left
+			$switchL--;
+		}
+	}
+	# now check BLUE
+	if ($pyramidR < 0) {
+		# cannot take from empty pyramid so take from switch or portal
+		$pyramidR = 0;
+		# try taking from switch
+		if ($switchR > 0) {
+			$switchR--;
+		} else {
+			# portal is all that's left
+			$BLUEportal--;
+		}
+	}
+	if ($switchR < 0) {
+		# cannot take from from switch so take from pyramid or portal
+		$switchR = 0;
+		# try taking from pyramid
+		if ($pyramidR > 0) {
+			$pyramidR--;
+		} else {
+			# portal is all that's left
+			$BLUEportal--;
+		}
+	}
+	if ($BLUEportal < 0) {
+		# cannot take from from portal so take from pyramid or switch
+		$BLUEportal = 0;
+		# try taking from pyramid
+		if ($pyramidR > 0) {
+			$pyramidR--;
+		} else {
+			# switch is all that's left
+			$switchR--;
+		}
+	}
+}
+
 # remove cubes from locations
 sub removeCubes($$) {
     my ($robot, $color) = (@_);
     $pyramidL-- if ("$color" eq "red" && $robot == 1);
+	emptycheck();
     $switchL-- if ("$color" eq "red" && $robot == 2);
+	emptycheck();
     $pyramidR-- if ("$color" eq "blue" && $robot == 1);
+	emptycheck();
     $switchR-- if ("$color" eq "blue" && $robot == 2);
+	emptycheck();
     $REDportal-- if ("$color" eq "red" && $robot == 3 && $REDportal > 0);
+	emptycheck();
     $BLUEportal-- if ("$color" eq "blue" && $robot == 3 && $BLUEportal > 0);
+	emptycheck();
 }
 
 sub printCube($) {
@@ -437,26 +515,19 @@ sub printTableLine($) {
 	my $c = $bluOwnSc * $multiplier;
 	my $d = $bluOwnSw * $multiplier;
 	
-	my $redf = $REDforce;
+	my $redf = $REDforce * 5;
+	my $redl = $REDlevitate * 5;
+	my $redb = $REDboost * 5;
+	my $bluf = $BLUEforce * 5;
+	my $blul = $BLUElevitate * 5;
+	my $blub = $BLUEboost * 5;
+		
 	$redf = "X" if ($REDforce > 3);
-	my $redl = $REDlevitate;
 	$redl = "X" if ($REDlevitate > 3);
-	my $redb = $REDboost;
 	$redb = "X" if ($REDboost > 3);
-
-	my $bluf = $BLUEforce;
 	$bluf = "X" if ($BLUEforce > 3);
-	my $blul = $BLUElevitate;
 	$blul = "X" if ($BLUElevitate > 3);
-	my $blub = $BLUEboost;
 	$blub = "X" if ($BLUEboost > 3);
-	
-	$redf *= 5;
-	$redl *= 5;
-	$redb *= 5;
-	$bluf *= 5;
-	$blul *= 5;
-	$blub *= 5;
 	
 	my $x = "<tr><td align=center>$redf</td><td align=center>$redl</td><td align=center>$redb</td><td align=center>$a</td><td align=center>$b</td>\n";
 	$x .= "<td align=center>$c</td><td align=center>$d</td><td align=center>$bluf</td><td align=center>$blul</td><td align=center>$blub</td></tr>\n";
@@ -768,11 +839,7 @@ $time = "1:25" if ($round == 6);
 $time = "1:15" if ($round == 7);
 $time = "1:05" if ($round == 8);
 $time = ":55"  if ($round == 9);
-$time = ":45"  if ($round == 10);
-$time = ":35"  if ($round == 11);
-$time = ":25"  if ($round == 12);
-$time = ":15"  if ($round == 13);
-$time = ":00"  if ($round > 13);
+$time = ":00"  if ($round == 10);
 print "</th><th>Time: $time</th><th>\n";
 print "<H3><div style=\"color:blue\">Blue Alliance: $BLUEscore</div></H3>\n";
 print "</tr></table></td></tr>\n";
@@ -836,55 +903,60 @@ sub printPowerUps($$$$$$$) {
 	print "&nbsp;\n" if (($force < 1 || $force > 3) && ($levitate < 1 || $levitate > 3) && ($boost < 1 || $boost > 3));
 }
 
-#
-# Print 
-#
-for (my $n = 1; $n < 4; $n++) {
-	print "<tr><td colspan=2 align=center>\n";
-	print "<table border=1><tr><td><table><tr><td align=center>";
-	if ($turn == 1) {
-		if ($round == 0) {
-			print "<p><b>Red Robot #${n}</b> delivers its cube to the:&nbsp;\n";
+if ($round < 10) {
+	#
+	# Print 
+	#
+	for (my $n = 1; $n < 4; $n++) {
+		print "<tr><td colspan=2 align=center>\n";
+		print "<table border=1><tr><td><table><tr><td align=center>";
+		if ($turn == 1) {
+			if ($round == 0) {
+				print "<p><b>Red Robot #${n}</b> delivers its cube to the:&nbsp;\n";
+			} else {
+				print "<table><tr><td>";
+				print "<p><b>Red #${n} from</b>";
+				print "</td><td>";
+				printFrom("RC${n}", $pyramidL, $switchL, $REDportal);
+				print "</td><td>";
+				print "&nbsp;<b>to</b>&nbsp;";
+				print "</td></tr></table>";
+			}
+			print "</td><td align=center>\n";
+			printTo("R${n}", "RED", $REDforce, $REDlevitate, $REDboost);
 		} else {
-			print "<table><tr><td>";
-			print "<p><b>Red #${n} from</b>";
-			print "</td><td>";
-			printFrom("RC${n}", $pyramidL, $switchL, $REDportal);
-			print "</td><td>";
-			print "&nbsp;<b>to</b>&nbsp;";
-			print "</td></tr></table>";
+			if ($round == 0) {
+				print "<p><b>Blue Robot #${n}</b> delivers its cube to the:&nbsp;\n";
+			} else {
+				print "<table><tr><td>";
+				print "<p><b>Blue #${n} from</b><br>";
+				print "</td><td>";
+				printFrom("BC${n}", $pyramidR, $switchR, $BLUEportal);
+				print "</td><td>";
+				print "&nbsp;<b>to</b>&nbsp;";
+				print "</td></tr></table>";
+			}
+			print "</td><td>\n";
+			printTo("B${n}", "BLUE", $BLUEforce, $BLUElevitate, $BLUEboost);
 		}
-		print "</td><td align=center>\n";
-		printTo("R${n}", "RED", $REDforce, $REDlevitate, $REDboost);
-	} else {
-
-		if ($round == 0) {
-			print "<p><b>Blue Robot #${n}</b> delivers its cube to the:&nbsp;\n";
-		} else {
-			print "<table><tr><td>";
-			print "<p><b>Blue #${n} from</b><br>";
-			print "</td><td>";
-			printFrom("BC${n}", $pyramidR, $switchR, $BLUEportal);
-			print "</td><td>";
-			print "&nbsp;<b>to</b>&nbsp;";
-			print "</td></tr></table>";
-		}
-		print "</td><td>\n";
-		printTo("B${n}", "BLUE", $BLUEforce, $BLUElevitate, $BLUEboost);
+		print "</td></tr></table></td></tr></table>";
+		print "</td></tr>\n";
 	}
-	print "</td></tr></table></td></tr></table>";
-	print "</td></tr>\n";
-}
-if ($turn == 1) {
-	printPowerUps("red", $REDforce, $REDlevitate, $REDboost, $redforceUp, $redliftUp, $redboostUp);
-} else {
-	printPowerUps("blue", $BLUEforce, $BLUElevitate, $BLUEboost, $blueforceUp, $blueliftUp, $blueboostUp);
-}
 
-print "</td></tr><tr>";
-print "<td colspan=2 align=center><p><br>\n";
-print "<input type=\"submit\" value=\"Submit Selections\">\n";
-print "</p></tr></table>\n";
+	if ($turn == 1) {
+		printPowerUps("red", $REDforce, $REDlevitate, $REDboost, $redforceUp, $redliftUp, $redboostUp);
+	} else {
+		printPowerUps("blue", $BLUEforce, $BLUElevitate, $BLUEboost, $blueforceUp, $blueliftUp, $blueboostUp);
+	}
+
+	print "</td></tr><tr>";
+	print "<td colspan=2 align=center><p><br>\n";
+	print "<input type=\"submit\" value=\"Submit Selections\">\n";
+	print "</p></tr>";
+} else {
+	print "<tr><td colspan=2 align=center>THE END</td></tr>\n";
+}
+print "</table>\n";
 print "<p>&nbsp;</p>\n";
 
 print "<table border=1>\n";
@@ -917,6 +989,9 @@ if ($debug) {
 	print "<p>redforceUp = $redforceUp, blueforceUp = $blueforceUp</p>\n";
 	print "<p>redliftUp = $redliftUp, blueliftUp = $blueliftUp</p>\n";
 	print "<p>redboostUp = $redboostUp, blueboostUp = $blueboostUp</p>\n";
+	print "<p>pyramidL = $pyramidL, pyramidR = $pyramidR</p>\n";
+	print "<p>switchL = $switchL, switchR = $switchR</p>\n";
+	print "<p>REDportal = $REDportal, BLUEportal = $BLUEportal</p>\n";
 	
 }
 
