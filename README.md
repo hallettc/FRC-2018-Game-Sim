@@ -23,7 +23,9 @@ then produces an updated web page with a new game state.
 Here is a description of the files for this game. The game has been evolving
 as I continue to develop it, so there are a couple of iterations:
 
-- cube.png        : image of a single power cube
+- cube.png        : image of a single yellow power cube
+- red_cube.png    : image of a single red power cube
+- blue_cube.png   : image of a single blue power cube
 - field.png       : image of a PowerUp! field, taken from the game manual
 - template.html   : the original html layout for the game	
 - powerup_v1.cgi  : the first iteration/prototype of the game

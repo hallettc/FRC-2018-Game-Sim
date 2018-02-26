@@ -241,10 +241,10 @@ if ($q->param) {
 
 # update powerUps
 $redforceUp++ if ($redfUp == 1);
-$redliftUp++  if ($redlUp == 1);
+$redliftUp++  if ($redlUp == 1 && $REDlevitate == 3);
 $redboostUp++ if ($redbUp == 1);
 $blueforceUp++ if ($bluefUp == 1);
-$blueliftUp++  if ($bluelUp == 1);
+$blueliftUp++  if ($bluelUp == 1 && $BLUElevitate == 3);
 $blueboostUp++ if ($bluebUp == 1);
 
 
@@ -272,6 +272,7 @@ sub scoreOwnership($) {
 			# boost activated and switch owned; double the score for
 			# this portion of ownership
 			$REDscore += 5;
+			$redOwnSw++;
 		}
 	} elsif ("$redforceUp" == "1" && ($REDforce == 1 || $REDforce == 3)) {
 		# force activated and switch not owned; own it for this portion of
@@ -289,13 +290,14 @@ sub scoreOwnership($) {
 		# check PowerUps
 		if ("$blueforceUp" == "1" && ($BLUEforce == 2 || $BLUEforce == 3)) {
 			# 20-point swing if BLUE force is activated
-			$redOwnSc--;
+			$redOwnSc = 0;
 			$REDscore -= 5;
 		}
 		if ("$redboostUp" == "1") {
 			# boost activated and scale owned; double the score for
 			# this portion of ownership
 			$REDscore += 5;
+			$redOwnSc++;
 		}
 	} elsif ("$redforceUp" == "1" && ($REDforce == 2 || $REDforce == 3)) {
 		# RED force is activated on scale, provide credit
@@ -311,13 +313,14 @@ sub scoreOwnership($) {
 		# check PowerUps
 		if ("$redforceUp" == "1" && ($REDforce == 2 || $REDforce == 3)) {
 			# RED force is activated, remove 5 from BLUE score
-			$bluOwnSc--;
+			$bluOwnSc = 0;
 			$BLUEscore -= 5;
 		}
 		if ("$blueboostUp" == "1") {
 			# boost activated and scale owned; double the score for
 			# this portion of ownership
 			$BLUEscore += 5;
+			$bluOwnSc++;
 		}
 	} elsif ("$blueforceUp" == "1" && ($BLUEforce == 2 || $BLUEforce == 3)) {
 		# BLUE force is activated on scale, provide credit
@@ -336,6 +339,7 @@ sub scoreOwnership($) {
 			# boost activated and switch owned; double the score for
 			# this portion of ownership
 			$BLUEscore += 5;
+			$bluOwnSw++;
 		}
 	} elsif ("$blueforceUp" == "1" && ($BLUEforce == 1 || $BLUEforce == 3)) {
 		# force activated and switch not owned; own it for this portion of
@@ -344,6 +348,21 @@ sub scoreOwnership($) {
 		$BLUEscore += 5;
 
     }
+}
+
+sub scoreEndGame {
+	if ($REDswitchL > $BLUEswitchL) {
+		$REDscore += 45;
+	}
+	if ($REDscale > $BLUEscale) {
+		$REDscore += 45;
+	}
+	if ($REDscale < $BLUEscale) {
+		$BLUEscore += 45;
+	}
+	if ($REDswitchR < $BLUEswitchR) {
+		$BLUEscore += 45;
+	}
 }
 
 sub scoreRedRobot($) {
@@ -508,6 +527,16 @@ sub printCube($) {
 	print "<div style=\"position:absolute; $cubepos\"><IMG SRC=cube.png></div>\n"
 }
 
+sub printRedCube($) {
+	my ($cubepos) = (@_);
+	print "<div style=\"position:absolute; $cubepos\"><IMG SRC=red_cube.png></div>\n"
+}
+
+sub printBlueCube($) {
+	my ($cubepos) = (@_);
+	print "<div style=\"position:absolute; $cubepos\"><IMG SRC=blue_cube.png></div>\n"
+}
+
 sub printTableLine($) {
 	my ($multiplier) = (@_);
 	my $a = $redOwnSw * $multiplier;
@@ -523,10 +552,10 @@ sub printTableLine($) {
 	my $blub = $BLUEboost * 5;
 		
 	$redf = "X" if ($REDforce > 3);
-	$redl = "X" if ($REDlevitate > 3);
+	$redl = "45" if ($REDlevitate > 3);
 	$redb = "X" if ($REDboost > 3);
 	$bluf = "X" if ($BLUEforce > 3);
-	$blul = "X" if ($BLUElevitate > 3);
+	$blul = "45" if ($BLUElevitate > 3);
 	$blub = "X" if ($BLUEboost > 3);
 	
 	my $x = "<tr><td align=center>$redf</td><td align=center>$redl</td><td align=center>$redb</td><td align=center>$a</td><td align=center>$b</td>\n";
@@ -612,28 +641,40 @@ if ($turn > 2) {
 	
 	if ($redboostUp > 0) {
 		$redboostUp = 2;
-		$REDboost++ if ($REDboost == 3);
+		$REDboost += 10 if ($REDboost < 10);
 	}
 	if ($redliftUp > 0) {
 		$redliftUp = 2;
-		$REDlevitate++ if ($REDlevitate == 3);
+		if ($REDlevitate < 10) {
+			$REDlevitate += 10;
+			$REDscore += 30;
+		}
 	}
 	if ($redforceUp > 0) {
 		$redforceUp = 2;
-		$REDforce++ if ($REDforce == 3);
+		$REDforce += 10 if ($REDforce < 10);
 	}
 	if ($blueboostUp > 0) {
 		$blueboostUp = 2;
-		$BLUEboost++ if ($BLUEboost == 3);
+		$BLUEboost += 10 if ($BLUEboost < 10);
 	}
 	if ($blueliftUp > 0) {
 		$blueliftUp = 2;
-		$BLUElevitate++ if ($BLUElevitate == 3);
+		if ($BLUElevitate < 10) {
+			$BLUElevitate += 10;
+			$BLUEscore += 10;
+		}
 	}
 	if ($blueforceUp > 0) {
 		$blueforceUp = 2;
-		$BLUEforce++ if($BLUEforce == 3);
+		$BLUEforce += 10 if ($BLUEforce < 10);
 	}
+# this makes sense when mapping to the real game, but
+# it skews this game so we will remove it for now
+#	if ($round > 9) {
+		# End Game
+#		scoreEndGame();
+#	}
 }
 
 #
@@ -727,16 +768,33 @@ print "<div style=\"position:absolute; top:132px; right:310px; color:yellow;\"><
 print "<div style=\"position:absolute; top:242px; right:310px; color:yellow;\"><B>$BLUEswitchR</B></div>\n";
 
 # print all of the cubes
-printCube($REDforcePos3) if ($REDforce > 2);
-printCube($REDforcePos2) if ($REDforce > 1);
-printCube($REDforcePos1) if ($REDforce > 0);
-printCube($REDlevitatePos3) if ($REDlevitate > 2);
-printCube($REDlevitatePos2) if ($REDlevitate > 1);
-printCube($REDlevitatePos1) if ($REDlevitate > 0);
-printCube($REDboostPos3) if ($REDboost > 2);
-printCube($REDboostPos2) if ($REDboost > 1);
-printCube($REDboostPos1) if ($REDboost > 0);
-
+if ($REDforce > 3) {
+	printRedCube($REDforcePos3) if ($REDforce > 12);
+	printRedCube($REDforcePos2) if ($REDforce > 11);
+	printRedCube($REDforcePos1) if ($REDforce > 10);
+} else {
+	printCube($REDforcePos3) if ($REDforce > 2);
+	printCube($REDforcePos2) if ($REDforce > 1);
+	printCube($REDforcePos1) if ($REDforce > 0);
+}
+if ($REDlevitate > 3) {
+	printRedCube($REDlevitatePos3) if ($REDlevitate > 12);
+	printRedCube($REDlevitatePos2) if ($REDlevitate > 11);
+	printRedCube($REDlevitatePos1) if ($REDlevitate > 10);
+} else {
+	printCube($REDlevitatePos3) if ($REDlevitate > 2);
+	printCube($REDlevitatePos2) if ($REDlevitate > 1);
+	printCube($REDlevitatePos1) if ($REDlevitate > 0);
+}
+if ($REDboost > 3) {
+	printRedCube($REDboostPos3) if ($REDboost > 12);
+	printRedCube($REDboostPos2) if ($REDboost > 11);
+	printRedCube($REDboostPos1) if ($REDboost > 10);
+} else {
+	printCube($REDboostPos3) if ($REDboost > 2);
+	printCube($REDboostPos2) if ($REDboost > 1);
+	printCube($REDboostPos1) if ($REDboost > 0);
+}
 printCube($BLUEportalPos11) if ($BLUEportal > 10);
 printCube($BLUEportalPos10) if ($BLUEportal > 9);
 printCube($BLUEportalPos9) if ($BLUEportal > 8);
@@ -809,18 +867,33 @@ printCube($REDportalPos3) if ($REDportal > 2);
 printCube($REDportalPos2) if ($REDportal > 1);
 printCube($REDportalPos1) if ($REDportal > 0);
 
-printCube($BLUEforcePos3) if ($BLUEforce > 2);
-printCube($BLUEforcePos2) if ($BLUEforce > 1);
-printCube($BLUEforcePos1) if ($BLUEforce > 0);
-
-printCube($BLUElevitatePos3) if ($BLUElevitate > 2);
-printCube($BLUElevitatePos2) if ($BLUElevitate > 1);
-printCube($BLUElevitatePos1) if ($BLUElevitate > 0);
-
-printCube($BLUEboostPos3) if ($BLUEboost > 2);
-printCube($BLUEboostPos2) if ($BLUEboost > 1);
-printCube($BLUEboostPos1) if ($BLUEboost > 0);
-
+if ($BLUEforce > 3) {
+	printBlueCube($BLUEforcePos3) if ($BLUEforce > 12);
+	printBlueCube($BLUEforcePos2) if ($BLUEforce > 11);
+	printBlueCube($BLUEforcePos1) if ($BLUEforce > 10);
+} else {
+	printCube($BLUEforcePos3) if ($BLUEforce > 2);
+	printCube($BLUEforcePos2) if ($BLUEforce > 1);
+	printCube($BLUEforcePos1) if ($BLUEforce > 0);
+}
+if ($BLUElevitate > 3) {
+	printBlueCube($BLUElevitatePos3) if ($BLUElevitate > 12);
+	printBlueCube($BLUElevitatePos2) if ($BLUElevitate > 11);
+	printBlueCube($BLUElevitatePos1) if ($BLUElevitate > 10);
+} else {
+	printCube($BLUElevitatePos3) if ($BLUElevitate > 2);
+	printCube($BLUElevitatePos2) if ($BLUElevitate > 1);
+	printCube($BLUElevitatePos1) if ($BLUElevitate > 0);
+}
+if ($BLUEboost > 3) {
+	printBlueCube($BLUEboostPos3) if ($BLUEboost > 12);
+	printBlueCube($BLUEboostPos2) if ($BLUEboost > 11);
+	printBlueCube($BLUEboostPos1) if ($BLUEboost > 10);
+} else {
+	printCube($BLUEboostPos3) if ($BLUEboost > 2);
+	printCube($BLUEboostPos2) if ($BLUEboost > 1);
+	printCube($BLUEboostPos1) if ($BLUEboost > 0);
+}
 
 #
 # print the current score and the time
@@ -898,9 +971,9 @@ sub printPowerUps($$$$$$$) {
 	print "</td></tr><tr><td colspan=2 align=center>\n";
 	my $space = "&nbsp;&nbsp;&nbsp;&nbsp;";
 	print "<INPUT TYPE=\"checkbox\" NAME=\"${color}fUp\" VALUE=\"1\">Force Up!$space\n"   if ($fup == 0 && $force > 0 && $force < 4);
-	print "<INPUT TYPE=\"checkbox\" NAME=\"${color}lUp\" VALUE=\"1\">Levitate Up!$space\n" if ($lup == 0 && $levitate > 0 && $levitate < 4);
+	print "<INPUT TYPE=\"checkbox\" NAME=\"${color}lUp\" VALUE=\"1\">Levitate Up!$space\n" if ($lup == 0 && $levitate > 0 && $levitate == 3);
 	print "<INPUT TYPE=\"checkbox\" NAME=\"${color}bUp\" VALUE=\"1\">Boost Up!$space\n"   if ($bup == 0 && $boost > 0 && $boost < 4);
-	print "&nbsp;\n" if (($force < 1 || $force > 3) && ($levitate < 1 || $levitate > 3) && ($boost < 1 || $boost > 3));
+	print "&nbsp;\n" if (($force < 1 || $force > 3) && ($levitate != 3) && ($boost < 1 || $boost > 3));
 }
 
 if ($round < 10) {
@@ -960,7 +1033,7 @@ print "</table>\n";
 print "<p>&nbsp;</p>\n";
 
 print "<table border=1>\n";
-print "<tr><td align=center colspan=5>RED</th><th align=center colspan=5>BLUE</th></tr>\n";
+print "<tr><th align=center colspan=5>RED</th><th align=center colspan=5>BLUE</th></tr>\n";
 print "<tr><th>force</th><th>levitate</th><th>boost</th><th>SWITCH</th><th>SCALE</th>\n";
 print "<th>SCALE</th><th>SWITCH</th><th>force</th><th>levitate</th><th>boost</th></tr>\n";
 print "$round0x\n";
